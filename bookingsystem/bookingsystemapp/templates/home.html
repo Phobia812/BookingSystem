@@ -1,0 +1,46 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <header class="bg-danger text-white py-3 mb-4">
+    <div class="container text-center">
+      <h1 class="mb-0">Система бронювання</h1>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2 class="mb-4">Доступні місця</h2>
+
+    <div class="row g-4">
+      {% for place in places %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            {% if place.image %}
+              <img src="{{ place.image.url }}" class="card-img-top" alt="{{ place.name }}">
+            {% else %}
+              <img src="{% static 'img/placeholder.png' %}" class="card-img-top" alt="No image">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">{{ place.name }}</h5>
+              <p class="card-text"><strong>Тип:</strong> {{ place.type.name }}</p>
+              <p class="card-text"><strong>Адреса:</strong> {{ place.address|default:"Невідома адреса" }}</p>
+              <p class="card-text"><strong>Ціна:</strong> {{ place.price_per_hour }} грн/год</p>
+              <a href="{% url 'details' place.id %}" class="btn btn-danger mt-auto">Забронювати</a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <p>Немає доступних місць для бронювання.</p>
+      {% endfor %}
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>Бронювання: {{ place.name }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+  <header class="bg-danger text-white py-3 mb-4">
+    <div class="container">
+      <h1 class="mb-0">Бронювання місця</h1>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card mb-4">
+          {% if place.image %}
+            <img src="{{ place.image.url }}" class="card-img-top" alt="{{ place.name }}" />
+          {% endif %}
+          <div class="card-body">
+            <h3 class="card-title">{{ place.name }}</h3>
+            <p><strong>Тип:</strong> {{ place.type.name }}</p>
+            <p><strong>Опис:</strong> {{ place.description|default:"Немає опису" }}</p>
+            <p><strong>Адреса:</strong> {{ place.address|default:"Невідома" }}</p>
+            <p><strong>Ціна за годину:</strong> {{ place.price_per_hour }} грн</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <h4>Форма бронювання</h4>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="user_name" class="form-label">Ваше ім'я</label>
+            <input type="text" class="form-control" id="user_name" name="user_name" required />
+          </div>
+          <div class="mb-3">
+            <label for="start_time" class="form-label">Дата і час початку</label>
+            <input type="datetime-local" class="form-control" id="start_time" name="start_time" required />
+          </div>
+          <div class="mb-3">
+            <label for="end_time" class="form-label">Дата і час закінчення</label>
+            <input type="datetime-local" class="form-control" id="end_time" name="end_time" required />
+          </div>
+          <button type="submit" class="btn btn-danger">Забронювати</button>
+        </form>
+        {% if success %}
+          <div class="alert alert-success mt-3">Бронювання успішно створено!</div>
+        {% elif errors %}
+          <div class="alert alert-danger mt-3">
+            <ul class="mb-0">
+              {% for err in errors %}
+                <li>{{ err }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
