@@ -1,46 +1,144 @@
+{% extends "base.html" %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-  <meta charset="UTF-8">
-  <title>Booking</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-  <header class="bg-danger text-white py-3 mb-4">
-    <div class="container text-center">
-      <h1 class="mb-0">Система бронювання</h1>
-    </div>
-  </header>
+{% block title %}Головна - BookingUA{% endblock %}
 
-  <main class="container">
-    <h2 class="mb-4">Доступні місця</h2>
-
-    <div class="row g-4">
-      {% for place in places %}
-        <div class="col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm">
-            {% if place.image %}
-              <img src="{{ place.image.url }}" class="card-img-top" alt="{{ place.name }}">
-            {% else %}
-              <img src="{% static 'img/placeholder.png' %}" class="card-img-top" alt="No image">
-            {% endif %}
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">{{ place.name }}</h5>
-              <p class="card-text"><strong>Тип:</strong> {{ place.type.name }}</p>
-              <p class="card-text"><strong>Адреса:</strong> {{ place.address|default:"Невідома адреса" }}</p>
-              <p class="card-text"><strong>Ціна:</strong> {{ place.price_per_hour }} грн/год</p>
-              <a href="{% url 'details' place.id %}" class="btn btn-danger mt-auto">Забронювати</a>
+{% block content %}
+<section class="search">
+    <div class="search-content">
+        <h1>Знайдіть ідеальне місце для відпочинку або роботи</h1>
+        
+        <form method="GET" action="{% url 'search' %}" class="search-form">
+            <div class="search-grid">
+                <div class="form-group">
+                    <label for="location">Куди їдемо?</label>
+                    <input type="text" id="location" name="location" placeholder="Введіть місто" required>
+                </div>
+                <div class="form-group">
+                    <label for="checkin">Заїзд</label>
+                    <input type="date" id="checkin" name="checkin" required>
+                </div>
+                <div class="form-group">
+                    <label for="checkout">Виїзд</label>
+                    <input type="date" id="checkout" name="checkout" required>
+                </div>
+                <div class="form-group">
+                    <label for="guests">Гості</label>
+                    <select id="guests" name="guests">
+                        <option value="1" selected>1 гість</option>
+                        <option value="2">2 гостя</option>
+                        <option value="3">3 гостя</option>
+                        <option value="4">4 гостя</option>
+                        <option value="5+">5+ гостей</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="search-btn">Знайти</button>
+                </div>
             </div>
-          </div>
-        </div>
-      {% empty %}
-        <p>Немає доступних місць для бронювання.</p>
-      {% endfor %}
+        </form>
     </div>
-  </main>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</section>
+
+<section class="popular-section">
+    <div class="container">
+        <h2 class="section-title">Популярні напрямки</h2>
+        <div class="destinations-grid">
+            {% for city in popular_destinations %}
+            <div class="destination-card">
+                <a href="{% url 'city_search' city.slug %}">
+                    <div class="destination-image">
+                        <img src="{% static 'img/' %}{{ city.slug }}.jpg" alt="{{ city.name }}">
+                    </div>
+                    <div class="destination-info">
+                        <h3>{{ city.name }}</h3>
+                        <p>{{ city.description }}</p>
+                        <div class="destination-price">від {{ city.min_price }}₴/доба</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title">Чому обирають нас</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🛡️</span>
+                <h3>Безпечні платежі</h3>
+                <p>Усі транзакції захищені сучасними системами безпеки</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">⭐</span>
+                <h3>Перевірені відгуки</h3>
+                <p>Тільки справжні відгуки від гостей, які дійсно зупинялися в готелях</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">📞</span>
+                <h3>Підтримка 24/7</h3>
+                <p>Наша команда готова допомогти вам у будь-який час дня і ночі</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">💎</span>
+                <h3>Найкращі ціни</h3>
+                <p>Гарантуємо найвигідніші пропозиції або повернемо різницю</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('checkin').setAttribute('min', today);
+    document.getElementById('checkout').setAttribute('min', today);
+
+    document.getElementById('checkin').addEventListener('change', function() {
+        const checkinDate = new Date(this.value);
+        checkinDate.setDate(checkinDate.getDate() + 1);
+        const minCheckout = checkinDate.toISOString().split('T')[0];
+        document.getElementById('checkout').setAttribute('min', minCheckout);
+    });
+
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.destination-card, .feature-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+
+    const lazyElements = document.querySelectorAll('.destination-card, .feature-card');
+
+    const lazyObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                lazyObserver.unobserve(entry.target);
+            }
+        });
+    });
+
+    lazyElements.forEach(el => {
+        lazyObserver.observe(el);
+    });
+</script>
+{% endblock %}

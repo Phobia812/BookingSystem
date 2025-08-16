@@ -1,70 +1,133 @@
+{% extends "base.html" %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-  <meta charset="UTF-8" />
-  <title>Бронювання: {{ place.name }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-</head>
-<body>
-  <header class="bg-danger text-white py-3 mb-4">
+{% block title %}Деталі бронювання - BookingUA{% endblock %}
+
+{% block content %}
+<section class="booking-details">
     <div class="container">
-      <h1 class="mb-0">Бронювання місця</h1>
-    </div>
-  </header>
-
-  <main class="container">
-    <div class="row">
-      <div class="col-md-6">
-        <div class="card mb-4">
-          {% if place.image %}
-            <img src="{{ place.image.url }}" class="card-img-top" alt="{{ place.name }}" />
-          {% endif %}
-          <div class="card-body">
-            <h3 class="card-title">{{ place.name }}</h3>
-            <p><strong>Тип:</strong> {{ place.type.name }}</p>
-            <p><strong>Опис:</strong> {{ place.description|default:"Немає опису" }}</p>
-            <p><strong>Адреса:</strong> {{ place.address|default:"Невідома" }}</p>
-            <p><strong>Ціна за годину:</strong> {{ place.price_per_hour }} грн</p>
+      <div class="place-card">
+          <div class="place-details">
+              <div class="place-image">
+                  <img src="{{ place.image.url }}" alt="{{ place.name }}">
+              </div>
+              <div class="place-info">
+                  <h1>{{ place.name }}</h1>
+                  <p><strong>Тип:</strong> {{ place.type.name }}</p>
+                  <p><strong>Місто:</strong> {{ place.city.name }}</p>
+                  <p><strong>Адреса:</strong> {{ place.address|default:"Не вказано" }}</p>
+                  <p><strong>Місткість:</strong> {{ place.capacity }} осіб</p>
+                  <p><strong>Ціна за добу:</strong> {{ place.price_per_day }} грн</p>
+                  <p><strong>Опис:</strong> {{ place.description|default:"Опис відсутній" }}</p>
+                  <p><strong>Доступність:</strong> 
+                      {% if place.available %}
+                          <span class="available">Доступно</span>
+                      {% else %}
+                          <span class="unavailable">Недоступно</span>
+                      {% endif %}
+                  </p>
+                  {% if place.available and user.is_authenticated %}
+                      <button id="openBookingModal" class="btn btn-primary">Забронювати</button>
+                  {% else %}
+                      <p class="error">Будь ласка, увійдіть, щоб зробити бронювання.</p>
+                  {% endif %}
+              </div>
           </div>
+      </div>
+      
+      {% if success %}
+        <div class="alert alert-success">
+            Бронювання успішно створено! Очікуйте підтвердження.
         </div>
-      </div>
+      {% endif %}
+      {% if errors %}
+          <div class="alert alert-error">
+              <ul>
+                  {% for error in errors %}
+                      <li>{{ error }}</li>
+                  {% endfor %}
+              </ul>
+          </div>
+      {% endif %}
 
-      <div class="col-md-6">
-        <h4>Форма бронювання</h4>
-        <form method="post" novalidate>
-          {% csrf_token %}
-          <div class="mb-3">
-            <label for="user_name" class="form-label">Ваше ім'я</label>
-            <input type="text" class="form-control" id="user_name" name="user_name" required />
+      {% if user.is_authenticated %}
+      <div id="bookingModal" class="modal hidden">
+          <div class="modal-content">
+              <h2>Забронювати {{ place.name }}</h2>
+              <form method="POST" action="{% url 'details' place.id %}">
+                  {% csrf_token %}
+                  <div class="form-group">
+                      <label for="start_date">Дата початку (заїзд з 12:00)</label>
+                      <input type="date" name="start_date" id="start_date" required min="{{ today }}">
+                  </div>
+                  <div class="form-group">
+                      <label for="end_date">Дата кінця (виїзд до 12:00)</label>
+                      <input type="date" name="end_date" id="end_date" required>
+                  </div>
+                  <div class="modal-buttons">
+                      <button type="button" id="closeBookingModal" class="btn btn-secondary">Скасувати</button>
+                      <button type="submit" class="btn btn-primary">Забронювати</button>
+                  </div>
+              </form>
           </div>
-          <div class="mb-3">
-            <label for="start_time" class="form-label">Дата і час початку</label>
-            <input type="datetime-local" class="form-control" id="start_time" name="start_time" required />
-          </div>
-          <div class="mb-3">
-            <label for="end_time" class="form-label">Дата і час закінчення</label>
-            <input type="datetime-local" class="form-control" id="end_time" name="end_time" required />
-          </div>
-          <button type="submit" class="btn btn-danger">Забронювати</button>
-        </form>
-        {% if success %}
-          <div class="alert alert-success mt-3">Бронювання успішно створено!</div>
-        {% elif errors %}
-          <div class="alert alert-danger mt-3">
-            <ul class="mb-0">
-              {% for err in errors %}
-                <li>{{ err }}</li>
-              {% endfor %}
-            </ul>
-          </div>
-        {% endif %}
       </div>
-    </div>
-  </main>
+      {% endif %}
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+      {% if user.is_authenticated %}
+      <script>
+        const openModalBtn = document.getElementById('openBookingModal');
+        const closeModalBtn = document.getElementById('closeBookingModal');
+        const modal = document.getElementById('bookingModal');
+
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+
+        openModalBtn.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+
+        startDateInput.addEventListener('change', () => {
+            if (startDateInput.value) {
+                let startDate = new Date(startDateInput.value);
+                startDate.setDate(startDate.getDate() + 1);
+                let minEndDate = startDate.toISOString().split('T')[0];
+                endDateInput.min = minEndDate;
+                if (endDateInput.value && endDateInput.value < minEndDate) {
+                    endDateInput.value = minEndDate;
+                }
+            } else {
+                endDateInput.min = "";
+            }
+        });
+
+        const form = modal.querySelector('form');
+
+        form.addEventListener('submit', (e) => {
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+            if (!startDate || !endDate) {
+                alert("Будь ласка, виберіть обидві дати.");
+                e.preventDefault();
+                return;
+            }
+            if (endDate <= startDate) {
+                alert("Дата кінця повинна бути пізнішою за дату початку.");
+                e.preventDefault();
+            }
+        });
+        </script>
+
+      {% endif %}
+  </div>
+
+{% endblock %}

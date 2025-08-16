@@ -1,0 +1,162 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BookingUA - Бронювання всього що потрібно{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="{% url 'home' %}" class="logo">BookingUA</a>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="{% url 'home' %}">Головна</a></li>
+                    <li><a href="{% url 'about' %}">Про нас</a></li>
+                    <li><a href="{% url 'contact' %}">Контакти</a></li>
+                </ul>
+
+                <div class="burger-menu" onclick="toggleMobileMenu()">
+                    <span class="burger-line"></span>
+                    <span class="burger-line"></span>
+                    <span class="burger-line"></span>
+                </div>
+
+                <div class="mobile-menu" id="mobileMenu">
+                    <ul>
+                        <li><a href="{% url 'home' %}" onclick="closeMobileMenu()">Головна</a></li>
+                        <li><a href="{% url 'about' %}" onclick="closeMobileMenu()">Про нас</a></li>
+                        <li><a href="{% url 'contact' %}" onclick="closeMobileMenu()">Контакти</a></li>
+                        <li>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'profile' %}" onclick="closeMobileMenu()">Профіль</a>
+                            {% else %}
+                                <a href="{% url 'login' %}" onclick="closeMobileMenu()">Увійти</a>
+                            {% endif %}
+                        </li>
+                        <li>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'logout' %}" onclick="closeMobileMenu()">Вийти</a>
+                            {% else %}
+                                <a href="{% url 'register' %}" onclick="closeMobileMenu()">Реєстрація</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="auth-buttons">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="btn-login">Профіль</a>
+                    <a href="{% url 'logout' %}" class="btn-register">Вийти</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn-login">Увійти</a>
+                    <a href="{% url 'register' %}" class="btn-register">Реєстрація</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Про компанію</h3>
+                    <ul>
+                        <li>Про нас</li>
+                        <li>Кар'єра</li>
+                        <li>Прес-центр</li>
+                        <li>Блог</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Підтримка</h3>
+                    <ul>
+                        <li>Центр підтримки</li>
+                        <li>Зв'язатися з нами</li>
+                        <li>Безпека</li>
+                        <li>Доступність</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Спільнота</h3>
+                    <ul>
+                        <li>Стати господарем</li>
+                        <li>Партнери</li>
+                        <li>Партнерська програма</li>
+                        <li>Інвестори</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Правова інформація</h3>
+                    <ul>
+                        <li>Умови використання</li>
+                        <li>Політика конфіденційності</li>
+                        <li>Файли cookie</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 BookingUA. Усі права захищені.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const burgerLines = document.querySelectorAll('.burger-line');
+
+            mobileMenu.classList.toggle('active');
+
+            if (mobileMenu.classList.contains('active')) {
+                burgerLines[0].style.transform = 'rotate(-45deg) translate(-5px, 6px)';
+                burgerLines[1].style.opacity = '0';
+                burgerLines[2].style.transform = 'rotate(45deg) translate(-5px, -6px)';
+            } else {
+                burgerLines[0].style.transform = 'none';
+                burgerLines[1].style.opacity = '1';
+                burgerLines[2].style.transform = 'none';
+            }
+        }
+
+        function closeMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const burgerLines = document.querySelectorAll('.burger-line');
+
+            mobileMenu.classList.remove('active');
+            burgerLines[0].style.transform = 'none';
+            burgerLines[1].style.opacity = '1';
+            burgerLines[2].style.transform = 'none';
+        }
+
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const burgerMenu = document.querySelector('.burger-menu');
+
+            if (!burgerMenu.contains(event.target) && !mobileMenu.contains(event.target)) {
+                closeMobileMenu();
+            }
+        });
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileMenu();
+            }
+        });
+
+        if ('ontouchstart' in window) {
+            document.body.classList.add('touch-device');
+        }
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Результати пошуку - BookingUA{% endblock %}
+
+{% block content %}
+<section class="search-results">
+    <div class="container">
+        <h2 class="section-title">Результати пошуку</h2>
+
+        {% if results %}
+            <p class="results-count">Знайдено {{ results|length }} варіант(ів) бронювання для "{{ query.location }}"</p>
+            
+            <div class="results-grid">
+                {% for place in results %}
+                <div class="result-card">
+                    <div class="result-image">
+                        <img src="{{ place.image.url }}" alt="{{ place.name }}">
+                    </div>
+                    <div class="result-info">
+                        <h3>{{ place.name }}</h3>
+                        <p><strong>Місткість:</strong> {{ place.capacity }} гостей</p>
+                        <p><strong>Адреса:</strong> {{ place.address }}</p>
+                        <div class="result-price">{{ place.price_per_day }}₴/доба</div>
+                        <a href="{% url 'details' place.id %}" class="details-btn">Детальніше</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-results">На жаль, нічого не знайдено для вашого запиту або всі місця заброньовані.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
