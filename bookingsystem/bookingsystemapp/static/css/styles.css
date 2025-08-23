@@ -1105,3 +1105,78 @@ body {
         font-size: 0.9rem;
     }
 }
+
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 20px;
+    margin-bottom: 1rem;
+    padding-top: 100px;
+}
+
+.auth-form {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+.auth-form h2 {
+    margin-bottom: 20px;
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+.auth-form .form-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.auth-form input:focus {
+    border-color: #007bff;
+}
+
+.auth-form button {
+    width: 100%;
+    padding: 10px;
+    background: #0056d6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.auth-form button:hover {
+    background: #0040a8;
+}
+
+.auth-link {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.auth-link a {
+    color: #0056d6;
+    font-weight: bold;
+    text-decoration: none;
+}
+.auth-link a:hover {
+    text-decoration: underline;
+}

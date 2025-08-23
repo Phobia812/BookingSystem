@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Вхід - BookingUA{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="auth-form">
+        <h2>Вхід</h2>
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-group">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+                {{ form.email.errors }}
+            </div>
+
+            <div class="form-group">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+                {{ form.password.errors }}
+            </div>
+
+            <button type="submit">Увійти</button>
+
+            {% if form.non_field_errors %}
+                <div class="text-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+        </form>
+
+        <p class="auth-link">Не маєте акаунта? <a href="{% url 'register' %}">Зареєструватися</a></p>
+    </div>
+</section>
+{% endblock %}

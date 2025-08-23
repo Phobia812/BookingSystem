@@ -48,5 +48,5 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Бронювання {self.place.name} від {self.start_time} до {self.end_time} для {self.user.username}"
+        return f"Бронювання {self.place.name} від {self.start_time} до {self.end_time} для {self.user.first_name} {self.user.last_name} {self.user.username}"
     

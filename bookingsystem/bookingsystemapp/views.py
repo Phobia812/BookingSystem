@@ -1,10 +1,14 @@
 from django.shortcuts import redirect, render, get_object_or_404
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 from django.utils import timezone
 from datetime import datetime, time
 from django.utils.dateparse import parse_date
 from django.utils.timezone import localdate
-from .models import Place, Booking, Type, City
+
+from bookingsystemapp.forms import LoginForm, RegisterForm
+from .models import Place, Booking, City
 
 def home(request):
     popular_destinations = City.objects.filter(is_popular=True)[:6]
@@ -30,11 +34,38 @@ def logout(request):
         
     return redirect('home')
 
-def login(request):
-    return render(request, 'login.html')
+def register_view(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect("home")
+    else:
+        form = RegisterForm()
+    return render(request, "register.html", {"form": form})
 
-def register(request):
-    return render(request, 'register.html')
+def login_view(request):
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            password = form.cleaned_data["password"]
+            user = authenticate(request, username=email, password=password)
+            if user is not None:
+                login(request, user)
+
+                if form.cleaned_data.get("remember_me"):
+                    request.session.set_expiry(7 * 24 * 60 * 60)
+                else:
+                    request.session.set_expiry(0)
+
+                return redirect("home")
+            else:
+                form.add_error(None, "Невірна електронна пошта або пароль")
+    else:
+        form = LoginForm()
+    return render(request, "login.html", {"form": form})
 
 def search(request):
     location = request.GET.get('location', '').strip()
