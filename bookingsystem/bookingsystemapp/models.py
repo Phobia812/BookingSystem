@@ -46,6 +46,7 @@ class Booking(models.Model):
         ('cancelled', 'Скасовано')
     ], default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    token = models.CharField(max_length=16)
 
     def __str__(self):
         return f"Бронювання {self.place.name} від {self.start_time} до {self.end_time} для {self.user.first_name} {self.user.last_name} {self.user.username}"

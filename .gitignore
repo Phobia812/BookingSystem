@@ -1,2 +1,3 @@
 venv/
 bookingsystem/db.sqlite3
+bookingsystem/.env

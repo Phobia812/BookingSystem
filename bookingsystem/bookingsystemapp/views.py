@@ -6,7 +6,12 @@ from django.utils import timezone
 from datetime import datetime, time
 from django.utils.dateparse import parse_date
 from django.utils.timezone import localdate
+from django.core.mail import send_mail
+from django.urls import reverse
+from django.utils.crypto import get_random_string
 
+
+from bookingsystem import settings
 from bookingsystemapp.forms import LoginForm, RegisterForm
 from .models import Place, Booking, City
 
@@ -183,14 +188,27 @@ def details(request, place_id):
                     errors.append("На обраний період вже існує бронювання. Будь ласка, оберіть інший час.")
 
             if not errors:
-                Booking.objects.create(
+                token = get_random_string(16)
+                booking = Booking.objects.create(
                     place=place,
                     user=request.user,
                     start_time=start_dt,
                     end_time=end_dt,
-                    status='pending'
+                    status='pending',
+                    token=token
                 )
                 success = True
+
+                url = f"{request.scheme}://{request.get_host()}" \
+                  f"{reverse('activate_booking', args=[booking.pk, token])}"
+                
+                send_mail(
+                    subject="Підтвердження бронювання",
+                    message=f"{url}",
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[request.user.email],
+                    fail_silently=False,
+                    html_message = f"Ваше бронювання створено. Для підтвердження перейдіть за посиланням: <a href='{url}'>Підтвердити бронювання</a>")
 
     today = localdate()
 
@@ -200,3 +218,12 @@ def details(request, place_id):
         "errors": errors,
         "today": today.isoformat(),
     })
+
+def activate_booking(request, booking_id, token):
+    booking = get_object_or_404(Booking, id=booking_id, token=token)
+
+    booking.status = 'confirmed'
+    booking.save()
+
+    return redirect('profile')
+

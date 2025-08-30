@@ -16,6 +16,7 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     path('search/', views.search, name='search'),
     path('city/<slug:slug>/', views.city_search, name='city_search'),
+    path('activate/<int:booking_id>/<str:token>/', views.activate_booking, name='activate_booking'),
 ]
 
 
